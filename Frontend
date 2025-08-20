@@ -1,0 +1,84 @@
+import streamlit as st
+import pandas as pd
+from Backend import fetch_transactions, get_financial_insights
+
+st.set_page_config(
+    page_title="Finance: Revenue & Expense Tracker",
+    page_icon="📈",
+    layout="wide"
+)
+
+def main():
+    """Main function to run the Streamlit application."""
+    st.title("Finance: Revenue & Expense Tracker 📈")
+    st.write("A quick overview of the company's financial health.")
+
+    # --- Business Insights Section ---
+    st.header("Financial Overview")
+    insights = get_financial_insights()
+    
+    col1, col2, col3, col4 = st.columns(4)
+
+    with col1:
+        st.metric(label="Total Transactions", value=insights.get('total_transactions', 0))
+    
+    with col2:
+        st.metric(label="Total Revenue", value=f"${insights.get('total_revenue', 0.0):,.2f}")
+
+    with col3:
+        st.metric(label="Total Expenses", value=f"${insights.get('total_expenses', 0.0):,.2f}")
+    
+    with col4:
+        st.metric(label="Net Income", value=f"${insights.get('net_income', 0.0):,.2f}")
+        
+    st.write("---")
+    
+    # --- Transaction Display and Filtering Section ---
+    st.header("Transaction Details")
+
+    # Filters and Sorting
+    col_filter, col_sort_by, col_sort_order = st.columns([1, 1, 1])
+    
+    with col_filter:
+        transaction_type = st.selectbox(
+            "Filter by Type:",
+            options=["All", "Revenue", "Expense"]
+        )
+        
+    with col_sort_by:
+        sort_by = st.selectbox(
+            "Sort by:",
+            options=["None", "amount", "transaction_date"]
+        )
+    
+    with col_sort_order:
+        sort_order = st.selectbox(
+            "Sort order:",
+            options=["ASC", "DESC"]
+        )
+    
+    # Fetch data based on user selections
+    filtered_type = transaction_type if transaction_type != "All" else None
+    
+    transactions = fetch_transactions(
+        transaction_type=filtered_type,
+        sort_by=sort_by if sort_by != "None" else None,
+        sort_order=sort_order
+    )
+    
+    if transactions:
+        # Convert fetched data to a pandas DataFrame for better display
+        df = pd.DataFrame(transactions, columns=[
+            "transaction_id",
+            "transaction_date",
+            "description",
+            "amount",
+            "type"
+        ])
+        
+        st.dataframe(df, use_container_width=True)
+    else:
+        st.info("No transactions found.")
+
+if __name__ == "__main__":
+    main()
