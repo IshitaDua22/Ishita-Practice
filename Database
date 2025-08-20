@@ -1,0 +1,23 @@
+CREATE TABLE transactions (
+    transaction_id VARCHAR(255) PRIMARY KEY,
+    transaction_date DATE NOT NULL,
+    description TEXT,
+    amount DECIMAL(10, 2) NOT NULL,
+    type VARCHAR(20) -- 'Revenue' or 'Expense'
+);
+INSERT INTO transactions (transaction_id, transaction_date, description, amount, type) VALUES
+('TRX-001', '2024-07-01', 'Software license sale', 15000.00, 'Revenue'),
+('TRX-002', '2024-07-02', 'Office rent payment', 2500.00, 'Expense'),
+('TRX-003', '2024-07-03', 'Consulting services fee', 8500.50, 'Revenue'),
+('TRX-004', '2024-07-05', 'Advertising campaign cost', 1200.75, 'Expense'),
+('TRX-005', '2024-07-08', 'Product sales from website', 25000.00, 'Revenue'),
+('TRX-006', '2024-07-10', 'Employee salaries', 15000.00, 'Expense'),
+('TRX-007', '2024-07-12', 'Utility bill payment', 350.25, 'Expense'),
+('TRX-008', '2024-07-15', 'Maintenance contract', 500.00, 'Expense'),
+('TRX-009', '2024-07-18', 'Subscription service income', 4500.00, 'Revenue'),
+('TRX-010', '2024-07-20', 'Raw materials purchase', 7500.00, 'Expense'),
+('TRX-011', '2024-07-22', 'Commission from affiliate', 150.75, 'Revenue'),
+('TRX-012', '2024-07-25', 'Refund to customer', 75.00, 'Expense'),
+('TRX-013', '2024-07-28', 'Interest income', 25.50, 'Revenue'),
+('TRX-014', '2024-07-30', 'Travel expenses', 550.00, 'Expense'),
+('TRX-015', '2024-07-31', 'Investment gain', 1200.00, 'Revenue');
