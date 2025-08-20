@@ -1,0 +1,103 @@
+import psycopg2
+import os
+from dotenv import load_dotenv
+
+# Load environment variables
+load_dotenv()
+DB_NAME = os.getenv('Practice')
+DB_USER = os.getenv('postgres')
+DB_PASS = os.getenv('Iamstrong22082000!')
+DB_HOST = os.getenv('localhost')
+
+def get_db_connection():
+    """Establishes a connection to the PostgreSQL database."""
+    try:
+        conn = psycopg2.connect(
+            dbname=DB_NAME,
+            user=DB_USER,
+            password=DB_PASS,
+            host=DB_HOST
+        )
+        return conn
+    except psycopg2.Error as e:
+        print(f"Error connecting to the database: {e}")
+        return None
+
+def fetch_transactions(transaction_type=None, sort_by=None, sort_order='ASC'):
+    """
+    Retrieves transactions from the database with optional filtering and sorting.
+    
+    Args:
+        transaction_type (str, optional): 'Revenue' or 'Expense' to filter transactions.
+        sort_by (str, optional): Column to sort by ('amount' or 'transaction_date').
+        sort_order (str, optional): 'ASC' or 'DESC' for sorting order.
+
+    Returns:
+        list: A list of tuples containing transaction data.
+    """
+    conn = get_db_connection()
+    if not conn:
+        return []
+    
+    try:
+        with conn.cursor() as cur:
+            query = "SELECT * FROM transactions"
+            params = []
+            
+            if transaction_type:
+                query += " WHERE type = %s"
+                params.append(transaction_type)
+            
+            if sort_by in ['amount', 'transaction_date']:
+                query += f" ORDER BY {sort_by} {sort_order}"
+
+            cur.execute(query, params)
+            transactions = cur.fetchall()
+            return transactions
+    except psycopg2.Error as e:
+        print(f"Error fetching transactions: {e}")
+        return []
+    finally:
+        if conn:
+            conn.close()
+
+def get_financial_insights():
+    """
+    Calculates various financial aggregates for business insights.
+
+    Returns:
+        dict: A dictionary containing aggregated financial data.
+    """
+    conn = get_db_connection()
+    if not conn:
+        return {}
+    
+    try:
+        with conn.cursor() as cur:
+            # Total number of transactions
+            cur.execute("SELECT COUNT(*) FROM transactions")
+            total_transactions = cur.fetchone()[0]
+
+            # Total revenue
+            cur.execute("SELECT SUM(amount) FROM transactions WHERE type = 'Revenue'")
+            total_revenue = cur.fetchone()[0] or 0.0
+
+            # Total expenses
+            cur.execute("SELECT SUM(amount) FROM transactions WHERE type = 'Expense'")
+            total_expenses = cur.fetchone()[0] or 0.0
+
+            # Net income
+            net_income = total_revenue - total_expenses
+
+            return {
+                'total_transactions': total_transactions,
+                'total_revenue': total_revenue,
+                'total_expenses': total_expenses,
+                'net_income': net_income
+            }
+    except psycopg2.Error as e:
+        print(f"Error getting financial insights: {e}")
+        return {}
+    finally:
+        if conn:
+            conn.close()# Ishita-Practice
